@@ -1,0 +1,139 @@
+﻿<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpendMate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="authBox" class="auth-wrap">
+    <div class="auth-card">
+      <h1 id="authTitle"><i class="bi bi-wallet2"></i> SpendMate</h1>
+      <p id="authSubtitle">Quản lý chi tiêu thông minh</p>
+      <input id="name" placeholder="Họ tên" />
+      <input id="email" placeholder="Email" />
+      <input id="password" type="password" placeholder="Mật khẩu" />
+      <div class="auth-row">
+        <button id="registerBtn">Đăng ký</button>
+        <button id="loginBtn" class="ghost">Đăng nhập</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="appBox" class="hidden app-shell">
+    <aside class="left-nav">
+      <div class="brand"><i class="bi bi-currency-dollar"></i></div>
+      <h2>SpendMate</h2>
+      <button data-tab="dashboard" class="active" id="navDashboard"><i class="bi bi-grid-1x2"></i> Dashboard</button>
+      <button data-tab="transactions" id="navTransactions"><i class="bi bi-receipt"></i> Giao dịch</button>
+      <button data-tab="stats" id="navStats"><i class="bi bi-bar-chart"></i> Thống kê</button>
+      <button data-tab="groups" id="navGroups"><i class="bi bi-people"></i> Nhóm / Gia đình</button>
+      <button data-tab="settings" id="navSettings"><i class="bi bi-gear"></i> Cài đặt</button>
+      <button id="logoutBtn" class="logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
+    </aside>
+
+    <main class="main-content">
+      <header class="main-top">
+        <h1 id="pageTitle">Tổng quan</h1>
+        <div class="main-actions">
+          <select id="languageSelect">
+            <option value="vi">Tiếng Việt</option>
+            <option value="en">English</option>
+          </select>
+          <a href="#" id="exportExcel"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
+          <a href="#" id="exportPdf"><i class="bi bi-file-earmark-pdf"></i> Xuất PDF</a>
+        </div>
+      </header>
+
+      <section id="dashboard" class="tab active">
+        <div id="kpiCards" class="kpi-grid"></div>
+        <div class="chart-grid">
+          <article class="panel"><h3 id="barTitle"><i class="bi bi-bar-chart-line"></i> Biểu đồ thu - chi</h3><canvas id="barChart"></canvas></article>
+          <article class="panel"><h3 id="lineTitle"><i class="bi bi-graph-up-arrow"></i> Xu hướng</h3><canvas id="lineChart"></canvas></article>
+          <article class="panel"><h3 id="pieTitle"><i class="bi bi-pie-chart"></i> Phân bổ danh mục</h3><canvas id="pieChart"></canvas></article>
+          <article class="panel">
+            <h3 id="budgetTitle"><i class="bi bi-piggy-bank"></i> Ngân sách</h3>
+            <div id="budgetPanel"></div>
+          </article>
+        </div>
+        <article class="panel">
+          <h3 id="recentTitle"><i class="bi bi-clock-history"></i> Giao dịch gần đây</h3>
+          <table>
+            <thead><tr><th id="thDate">Ngày</th><th id="thCategory">Danh mục</th><th id="thType">Loại</th><th id="thAmount">Số tiền</th><th id="thNote">Ghi chú</th><th></th></tr></thead>
+            <tbody id="txTable"></tbody>
+          </table>
+        </article>
+      </section>
+
+      <section id="transactions" class="tab panel">
+        <h3 id="addTxTitle"><i class="bi bi-plus-circle"></i> Thêm giao dịch</h3>
+        <div class="form-grid">
+          <select id="txKind"><option value="expense">Chi</option><option value="income">Thu</option></select>
+          <input id="txCategory" placeholder="Danh mục" />
+          <input id="txAmount" type="number" placeholder="Số tiền" />
+          <input id="txDate" type="date" />
+          <select id="txGroup"></select>
+          <input id="txNote" placeholder="Ghi chú" />
+          <button id="addTx"><i class="bi bi-check2-circle"></i> Lưu giao dịch</button>
+        </div>
+        <ul id="txList" class="list"></ul>
+      </section>
+
+      <section id="stats" class="tab panel">
+        <h3 id="statsDetailTitle"><i class="bi bi-clipboard-data"></i> Thống kê chi tiết</h3>
+        <select id="period">
+          <option value="day">Ngày</option>
+          <option value="week">Tuần</option>
+          <option value="month" selected>Tháng</option>
+          <option value="year">Năm</option>
+        </select>
+        <pre id="statsContent"></pre>
+      </section>
+
+      <section id="groups" class="tab panel">
+        <h3 id="groupTitle"><i class="bi bi-people-fill"></i> Nhóm / Gia đình</h3>
+        <div class="form-grid">
+          <input id="groupName" placeholder="Tên nhóm" />
+          <button id="createGroup"><i class="bi bi-person-plus"></i> Tạo nhóm</button>
+        </div>
+        <ul id="groupList" class="list"></ul>
+        <hr />
+        <div class="form-grid">
+          <select id="memberGroup"></select>
+          <input id="memberEmail" placeholder="Email thành viên" />
+          <button id="addMemberBtn"><i class="bi bi-person-plus-fill"></i> Thêm thành viên</button>
+        </div>
+        <ul id="memberList" class="list"></ul>
+      </section>
+
+      <section id="settings" class="tab panel">
+        <h3 id="settingsTitle"><i class="bi bi-sliders"></i> Ngân sách và nhắc nhở</h3>
+        <div class="form-grid">
+          <input id="profileName" placeholder="Họ tên" />
+          <input id="profilePhone" placeholder="Số điện thoại" />
+          <label class="inline-check"><input id="profile2fa" type="checkbox" /> Bật 2FA</label>
+          <button id="saveProfile"><i class="bi bi-person-check"></i> Lưu tài khoản</button>
+        </div>
+        <div class="form-grid">
+          <input id="budget" type="number" placeholder="Giới hạn ngân sách" />
+          <button id="saveBudget"><i class="bi bi-save2"></i> Lưu ngân sách</button>
+        </div>
+        <div class="form-grid">
+          <input id="reminderTitle" placeholder="Tên nhắc nhở" />
+          <input id="reminderDay" type="number" min="1" max="31" placeholder="Ngày" />
+          <button id="addReminder"><i class="bi bi-bell"></i> Thêm nhắc nhở</button>
+        </div>
+        <ul id="reminderList" class="list"></ul>
+      </section>
+    </main>
+  </div>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
