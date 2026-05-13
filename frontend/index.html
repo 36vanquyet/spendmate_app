@@ -13,62 +13,123 @@
 </head>
 <body>
   <div id="authBox" class="auth-wrap">
-    <div class="auth-card">
-      <h1 id="authTitle"><i class="bi bi-wallet2"></i> SpendMate</h1>
-      <p id="authSubtitle">Quản lý chi tiêu thông minh</p>
-      <input id="name" placeholder="Họ tên" />
-      <input id="email" placeholder="Email" />
-      <input id="password" type="password" placeholder="Mật khẩu" />
-      <div class="auth-row">
-        <button id="registerBtn">Đăng ký</button>
-        <button id="loginBtn" class="ghost">Đăng nhập</button>
-      </div>
+    <div class="auth-shell">
+      <section class="auth-left">
+        <div class="auth-brand">
+          <div class="auth-logo">S</div>
+          <div>
+            <h1 id="authTitle">SpendMate</h1>
+            <p id="authSubtitle">Quản lý chi tiêu thông minh</p>
+          </div>
+        </div>
+
+        <div class="auth-tabs">
+          <button id="loginBtn" class="auth-tab active">Đăng nhập</button>
+          <button id="registerBtn" class="auth-tab">Đăng ký</button>
+        </div>
+
+        <label class="field-label">Email hoặc số điện thoại</label>
+        <div class="field-wrap">
+          <i class="bi bi-person"></i>
+          <input id="email" placeholder="Nhập email hoặc số điện thoại" />
+        </div>
+
+        <label class="field-label">Mật khẩu</label>
+        <div class="field-wrap">
+          <i class="bi bi-lock"></i>
+          <input id="password" type="password" placeholder="Nhập mật khẩu" />
+          <i class="bi bi-eye"></i>
+        </div>
+
+        <div class="auth-help">Quên mật khẩu?</div>
+        <input id="name" class="hidden" placeholder="Họ tên" />
+        <button id="authPrimaryBtn" class="auth-primary">Đăng nhập</button>
+
+        <div class="auth-divider"><span>hoặc</span></div>
+
+        <button class="social-btn"><i class="bi bi-google"></i> Đăng nhập với Google</button>
+        <button class="social-btn"><i class="bi bi-apple"></i> Đăng nhập với Apple</button>
+
+        <p class="auth-foot">Chưa có tài khoản? <a href="#" id="switchToRegister">Đăng ký</a></p>
+      </section>
+
+      <section class="auth-right">
+        <h2>Quản lý chi tiêu dễ dàng</h2>
+        <p>Hiểu rõ tài chính của bạn, theo dõi thu chi và đưa ra quyết định thông minh hơn mỗi ngày.</p>
+        <div class="dots"><span class="active"></span><span></span><span></span></div>
+      </section>
     </div>
   </div>
 
   <div id="appBox" class="hidden app-shell">
     <aside class="left-nav">
-      <div class="brand"><i class="bi bi-currency-dollar"></i></div>
-      <h2>SpendMate</h2>
+      <div class="side-brand">
+        <div class="brand">S</div>
+        <h2>SpendMate</h2>
+      </div>
       <button data-tab="dashboard" class="active" id="navDashboard"><i class="bi bi-grid-1x2"></i> Dashboard</button>
       <button data-tab="transactions" id="navTransactions"><i class="bi bi-receipt"></i> Giao dịch</button>
       <button data-tab="stats" id="navStats"><i class="bi bi-bar-chart"></i> Thống kê</button>
       <button data-tab="groups" id="navGroups"><i class="bi bi-people"></i> Nhóm / Gia đình</button>
+      <button type="button"><i class="bi bi-clock"></i> Ngân sách</button>
+      <button type="button"><i class="bi bi-bullseye"></i> Mục tiêu</button>
+      <button type="button"><i class="bi bi-file-earmark-bar-graph"></i> Báo cáo</button>
       <button data-tab="settings" id="navSettings"><i class="bi bi-gear"></i> Cài đặt</button>
       <button id="logoutBtn" class="logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
     </aside>
 
     <main class="main-content">
       <header class="main-top">
-        <h1 id="pageTitle">Tổng quan</h1>
         <div class="main-actions">
-          <select id="languageSelect">
+          <select id="languageSelect" class="visually-hidden">
             <option value="vi">Tiếng Việt</option>
             <option value="en">English</option>
           </select>
-          <a href="#" id="exportExcel"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
-          <a href="#" id="exportPdf"><i class="bi bi-file-earmark-pdf"></i> Xuất PDF</a>
+          <button class="month-filter" type="button"><i class="bi bi-calendar3"></i> Tháng 5, 2024 <i class="bi bi-chevron-down"></i></button>
+          <button class="icon-btn notify-btn" type="button" aria-label="Thông báo"><i class="bi bi-bell"></i><span></span></button>
+          <button class="profile-pill" type="button"><span class="avatar">M</span><b>Minh</b><i class="bi bi-chevron-down"></i></button>
         </div>
       </header>
 
       <section id="dashboard" class="tab active">
-        <div id="kpiCards" class="kpi-grid"></div>
-        <div class="chart-grid">
-          <article class="panel"><h3 id="barTitle"><i class="bi bi-bar-chart-line"></i> Biểu đồ thu - chi</h3><canvas id="barChart"></canvas></article>
-          <article class="panel"><h3 id="lineTitle"><i class="bi bi-graph-up-arrow"></i> Xu hướng</h3><canvas id="lineChart"></canvas></article>
-          <article class="panel"><h3 id="pieTitle"><i class="bi bi-pie-chart"></i> Phân bổ danh mục</h3><canvas id="pieChart"></canvas></article>
-          <article class="panel">
-            <h3 id="budgetTitle"><i class="bi bi-piggy-bank"></i> Ngân sách</h3>
-            <div id="budgetPanel"></div>
-          </article>
+        <h1 id="pageTitle" class="dash-title">Tổng quan</h1>
+        <div class="dashboard-grid">
+          <div class="dash-main">
+            <div id="kpiCards" class="kpi-grid"></div>
+            <div class="chart-triple">
+              <article class="panel"><h3 id="barTitle">Biểu đồ thu - chi theo tháng</h3><canvas id="barChart"></canvas></article>
+              <article class="panel"><h3 id="lineTitle">Xu hướng thu - chi</h3><canvas id="lineChart"></canvas></article>
+              <article class="panel"><h3 id="pieTitle">Phân bổ chi tiêu theo danh mục</h3><canvas id="pieChart"></canvas></article>
+            </div>
+            <article class="panel tx-panel">
+              <div class="panel-head">
+                <h3 id="recentTitle">Giao dịch gần đây</h3>
+                <a href="#">Xem tất cả</a>
+              </div>
+              <table class="tx-table">
+                <thead><tr><th id="thDate">Ngày</th><th>Mô tả</th><th id="thCategory">Danh mục</th><th id="thType">Loại</th><th id="thAmount">Số tiền</th><th>Phương thức</th><th></th></tr></thead>
+                <tbody id="txTable"></tbody>
+              </table>
+            </article>
+          </div>
+
+          <aside class="dash-side">
+            <article class="panel budget-side">
+              <div class="panel-head">
+                <h3 id="budgetTitle">Ngân sách</h3>
+                <a href="#">Xem tất cả</a>
+              </div>
+              <div id="budgetPanel"></div>
+            </article>
+            <article class="panel quick-panel">
+              <h3>Thao tác nhanh</h3>
+              <button class="quick primary" id="quickAddTx" type="button"><i class="bi bi-plus-circle"></i> + Thêm giao dịch</button>
+              <button class="quick" id="quickBudget" type="button"><i class="bi bi-wallet2"></i> Tạo ngân sách</button>
+              <button class="quick" id="exportPdf" type="button"><i class="bi bi-file-earmark-text"></i> Xuất báo cáo</button>
+              <button id="exportExcel" class="visually-hidden" type="button">Xuất Excel</button>
+            </article>
+          </aside>
         </div>
-        <article class="panel">
-          <h3 id="recentTitle"><i class="bi bi-clock-history"></i> Giao dịch gần đây</h3>
-          <table>
-            <thead><tr><th id="thDate">Ngày</th><th id="thCategory">Danh mục</th><th id="thType">Loại</th><th id="thAmount">Số tiền</th><th id="thNote">Ghi chú</th><th></th></tr></thead>
-            <tbody id="txTable"></tbody>
-          </table>
-        </article>
       </section>
 
       <section id="transactions" class="tab panel">

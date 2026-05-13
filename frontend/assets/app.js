@@ -2,6 +2,7 @@
 let token = localStorage.getItem("token") || "";
 let charts = { bar: null, line: null, pie: null };
 let groupCache = [];
+let authMode = "login";
 
 const authBox = document.getElementById("authBox");
 const appBox = document.getElementById("appBox");
@@ -43,6 +44,25 @@ async function auth(endpoint) {
   switchAuthUi();
 }
 
+function setAuthMode(mode) {
+  authMode = mode;
+  const loginTab = document.getElementById("loginBtn");
+  const registerTab = document.getElementById("registerBtn");
+  const primary = document.getElementById("authPrimaryBtn");
+  const foot = document.getElementById("switchToRegister");
+  if (mode === "login") {
+    loginTab.classList.add("active");
+    registerTab.classList.remove("active");
+    primary.textContent = "Đăng nhập";
+    foot.textContent = "Đăng ký";
+  } else {
+    registerTab.classList.add("active");
+    loginTab.classList.remove("active");
+    primary.textContent = "Đăng ký";
+    foot.textContent = "Đăng nhập";
+  }
+}
+
 async function downloadReport(fmt, name) {
   const res = await fetch(`${API}/reports/export?fmt=${fmt}`, { headers: headers(false) });
   if (!res.ok) throw new Error("Không thể xuất báo cáo");
@@ -55,13 +75,20 @@ async function downloadReport(fmt, name) {
 
 function mountKpis(summary, budget) {
   const cards = [
-    ["Tổng thu", summary.income, "+12% so với tháng trước"],
-    ["Tổng chi", summary.expense, "-8% so với tháng trước"],
-    ["Số dư", summary.balance, "Dòng tiền hiện tại"],
-    ["Ngân sách", budget.monthly_limit || 0, budget.over_budget ? "Đang vượt mức" : "Trong ngân sách"]
+    { title: "Tổng số dư", value: summary.balance, trend: "8,5% so với tháng trước", icon: "bi-wallet2", tone: "blue" },
+    { title: "Tổng thu", value: summary.income, trend: "12,4% so với tháng trước", icon: "bi-arrow-down-circle", tone: "green" },
+    { title: "Tổng chi", value: summary.expense, trend: "6,2% so với tháng trước", icon: "bi-arrow-up-circle", tone: "red", expense: true },
+    { title: "Tiết kiệm", value: summary.income - summary.expense, trend: "24,1% so với tháng trước", icon: "bi-piggy-bank", tone: "green" }
   ];
   document.getElementById("kpiCards").innerHTML = cards.map(c => `
-    <div class="kpi"><h4>${c[0]}</h4><p>${vnd(c[1])}</p><span>${c[2]}</span></div>
+    <div class="kpi ${c.expense ? "expense" : ""}">
+      <div class="kpi-icon ${c.tone}"><i class="bi ${c.icon}"></i></div>
+      <div>
+        <h4>${c.title}</h4>
+        <p>${vnd(c.value)}</p>
+        <span><b>↑ ${c.trend.split(" ")[0]}</b> ${c.trend.replace(c.trend.split(" ")[0], "")}</span>
+      </div>
+    </div>
   `).join("");
 }
 
@@ -85,34 +112,47 @@ function drawCharts(summary, txs) {
   charts.bar = new Chart(document.getElementById("barChart"), {
     type: "bar",
     data: { labels: monthLabels, datasets: [
-      { label: "Thu", data: incomes, backgroundColor: "#9dc2ff" },
-      { label: "Chi", data: expenses, backgroundColor: "#2563eb" }
-    ] }
+      { label: "Tổng thu", data: incomes, backgroundColor: "#3b82f6", borderRadius: 3 },
+      { label: "Tổng chi", data: expenses, backgroundColor: "#a8b4c8", borderRadius: 3 }
+    ] },
+    options: { maintainAspectRatio: false, plugins: { legend: { labels: { boxWidth: 14, usePointStyle: true } } }, scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => `${Math.round(v / 1000000)}M` } } } }
   });
 
   charts.line = new Chart(document.getElementById("lineChart"), {
     type: "line",
     data: { labels: monthLabels, datasets: [
-      { label: "Thu", data: incomes, borderColor: "#1d4ed8", tension: 0.35 },
-      { label: "Chi", data: expenses, borderColor: "#94a3b8", tension: 0.35 }
-    ] }
+      { label: "Tổng thu", data: incomes, borderColor: "#2563eb", backgroundColor: "#2563eb", tension: 0.35, pointRadius: 3 },
+      { label: "Tổng chi", data: expenses, borderColor: "#94a3b8", backgroundColor: "#94a3b8", tension: 0.35, pointRadius: 3 }
+    ] },
+    options: { maintainAspectRatio: false, plugins: { legend: { labels: { boxWidth: 14, usePointStyle: true } } }, scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => `${Math.round(v / 1000000)}M` } } } }
   });
 
   charts.pie = new Chart(document.getElementById("pieChart"), {
     type: "doughnut",
     data: {
       labels: pieLabels.length ? pieLabels : ["Chưa có"],
-      datasets: [{ data: pieValues.length ? pieValues : [1], backgroundColor: ["#2563eb", "#60a5fa", "#93c5fd", "#cbd5e1", "#3b82f6"] }]
-    }
+      datasets: [{ data: pieValues.length ? pieValues : [1], backgroundColor: ["#2563eb", "#35a66f", "#f5b014", "#9b5de5", "#a8b4c8"], borderWidth: 3 }]
+    },
+    options: { maintainAspectRatio: false, cutout: "58%", plugins: { legend: { position: "right", labels: { boxWidth: 10, usePointStyle: true } } } }
   });
 }
 
 function mountBudgetPanel(summary, budget) {
   const categories = Object.entries(summary.by_category || {}).sort((a,b) => b[1]-a[1]).slice(0,4);
   const limit = budget.monthly_limit || 1;
-  document.getElementById("budgetPanel").innerHTML = categories.map(([name, val]) => {
+  const tones = ["green", "blue", "purple", "orange"];
+  const icons = ["bi-egg-fried", "bi-car-front", "bi-bag", "bi-receipt"];
+  document.getElementById("budgetPanel").innerHTML = categories.map(([name, val], index) => {
     const pct = Math.min(100, Math.round((val / limit) * 100));
-    return `<div class="budget-bar"><div class="budget-head"><b>${name}</b><span>${vnd(val)}</span></div><div class="progress"><i style="width:${pct}%"></i></div></div>`;
+    return `
+      <div class="budget-row">
+        <div class="budget-icon ${tones[index % tones.length]}"><i class="bi ${icons[index % icons.length]}"></i></div>
+        <div>
+          <div class="budget-head"><b>${name}</b><span>${vnd(val)} / ${vnd(limit)}</span><b>${pct}%</b></div>
+        </div>
+        <div class="progress"><i style="width:${pct}%"></i></div>
+      </div>
+    `;
   }).join("") || "<p>Chưa có dữ liệu ngân sách theo danh mục.</p>";
 }
 
@@ -130,11 +170,12 @@ async function loadDashboard() {
   document.getElementById("txTable").innerHTML = txs.slice(0, 10).map(tRow => `
     <tr>
       <td>${new Date(tRow.occurred_at).toLocaleDateString("vi-VN")}</td>
+      <td>${tRow.note || "-"}</td>
       <td>${tRow.category}</td>
-      <td>${tRow.kind === "expense" ? "Chi" : "Thu"}</td>
-      <td>${vnd(tRow.amount)}</td>
-      <td>${tRow.note || ""}</td>
-      <td><button onclick="delTx(${tRow.id})">Xóa</button></td>
+      <td><span class="tx-type ${tRow.kind === "expense" ? "expense" : "income"}">${tRow.kind === "expense" ? "↓ Chi" : "↑ Thu"}</span></td>
+      <td style="color:${tRow.kind === "expense" ? "#dc2626" : "#16a34a"}">${tRow.kind === "expense" ? "-" : "+"}${vnd(tRow.amount)}</td>
+      <td>${tRow.kind === "expense" ? "Ví MoMo" : "Vietcombank"}</td>
+      <td><button class="tx-menu" onclick="delTx(${tRow.id})"><i class="bi bi-three-dots-vertical"></i></button></td>
     </tr>
   `).join("");
 }
@@ -196,8 +237,24 @@ async function loadAll() {
   await Promise.all([loadDashboard(), loadTransactions(), loadStats(), loadGroups(), loadReminders(), loadProfile()]);
 }
 
-document.getElementById("registerBtn").onclick = () => auth("register").catch(e => alert(e.message));
-document.getElementById("loginBtn").onclick = () => auth("login").catch(e => alert(e.message));
+document.getElementById("registerBtn").onclick = () => setAuthMode("register");
+document.getElementById("loginBtn").onclick = () => setAuthMode("login");
+document.getElementById("authPrimaryBtn").onclick = () => auth(authMode === "login" ? "login" : "register").catch(e => alert(e.message));
+document.getElementById("switchToRegister").onclick = (e) => {
+  e.preventDefault();
+  setAuthMode(authMode === "login" ? "register" : "login");
+};
+const passwordInput = document.getElementById("password");
+const eyeIcon = document.querySelector(".field-wrap .bi-eye");
+if (passwordInput && eyeIcon) {
+  eyeIcon.style.cursor = "pointer";
+  eyeIcon.onclick = () => {
+    const isHidden = passwordInput.type === "password";
+    passwordInput.type = isHidden ? "text" : "password";
+    eyeIcon.classList.toggle("bi-eye", !isHidden);
+    eyeIcon.classList.toggle("bi-eye-slash", isHidden);
+  };
+}
 document.getElementById("logoutBtn").onclick = () => { token = ""; localStorage.removeItem("token"); switchAuthUi(); };
 
 document.getElementById("addTx").onclick = async () => {
@@ -270,3 +327,4 @@ document.querySelectorAll(".left-nav button[data-tab]").forEach(btn => {
 });
 
 switchAuthUi();
+setAuthMode("login");
