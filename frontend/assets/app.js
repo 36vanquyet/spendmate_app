@@ -73,6 +73,16 @@ async function downloadReport(fmt, name) {
   a.click();
 }
 
+function setProfileEditMode(editing) {
+  const form = document.querySelector(".settings-form");
+  const button = document.getElementById("saveProfile");
+  if (!form || !button) return;
+  form.classList.toggle("hidden", !editing);
+  button.innerHTML = editing
+    ? '<i class="bi bi-check2-circle"></i> Lưu hồ sơ'
+    : '<i class="bi bi-pencil-square"></i> Chỉnh sửa hồ sơ';
+}
+
 function mountKpis(summary, budget) {
   const cards = [
     { title: "Tổng số dư", value: summary.balance, trend: "8,5% so với tháng trước", icon: "bi-wallet2", tone: "blue" },
@@ -278,6 +288,15 @@ async function loadProfile() {
   document.getElementById("profileName").value = me.full_name || "";
   document.getElementById("profilePhone").value = me.phone || "";
   document.getElementById("profile2fa").checked = !!me.two_factor_enabled;
+  const toggle2fa = document.getElementById("profile2faToggle");
+  if (toggle2fa) toggle2fa.checked = !!me.two_factor_enabled;
+  document.getElementById("profileNameDisplay").textContent = me.full_name || "Minh Nguyễn";
+  document.getElementById("profileEmailDisplay").textContent = me.email || "minh.nguyen@gmail.com";
+  document.getElementById("profilePhoneDisplay").textContent = me.phone || "0901 234 567";
+  const browserLang = (navigator.language || "vi").startsWith("vi") ? "vi" : "en";
+  const lang = localStorage.getItem("lang_user") || localStorage.getItem("lang_guest") || browserLang;
+  if (languageSelect) languageSelect.value = lang;
+  setProfileEditMode(false);
 }
 
 async function loadAll() {
@@ -336,28 +355,74 @@ document.getElementById("addMemberBtn").onclick = async () => {
   await loadGroupMembers(groupId);
 };
 
-document.getElementById("saveProfile").onclick = async () => {
-  await call("/me", {
-    method: "PUT",
-    headers: headers(),
-    body: JSON.stringify({
-      full_name: document.getElementById("profileName").value,
-      phone: document.getElementById("profilePhone").value,
-      two_factor_enabled: document.getElementById("profile2fa").checked
-    })
+const saveProfileBtn = document.getElementById("saveProfile");
+if (saveProfileBtn) {
+  saveProfileBtn.onclick = async () => {
+    const form = document.querySelector(".settings-form");
+    const editing = form && !form.classList.contains("hidden");
+    if (!editing) {
+      setProfileEditMode(true);
+      const firstField = document.getElementById("profileName");
+      if (firstField) firstField.focus();
+      return;
+    }
+    const twoFactor = !!document.getElementById("profile2faToggle")?.checked || !!document.getElementById("profile2fa").checked;
+    await call("/me", {
+      method: "PUT",
+      headers: headers(),
+      body: JSON.stringify({
+        full_name: document.getElementById("profileName").value,
+        phone: document.getElementById("profilePhone").value,
+        two_factor_enabled: twoFactor
+      })
+    });
+    const name = document.getElementById("profileName").value || "Minh Nguyễn";
+    const phone = document.getElementById("profilePhone").value || "0901 234 567";
+    document.getElementById("profileNameDisplay").textContent = name;
+    document.getElementById("profilePhoneDisplay").textContent = phone;
+    document.getElementById("profile2fa").checked = twoFactor;
+    const toggle2fa = document.getElementById("profile2faToggle");
+    if (toggle2fa) toggle2fa.checked = twoFactor;
+    setProfileEditMode(false);
+    alert("Đã lưu hồ sơ");
+  };
+}
+
+const languageSelectEl = document.getElementById("languageSelect");
+if (languageSelectEl) {
+  const savedLang = localStorage.getItem("lang_user") || localStorage.getItem("lang_guest") || ((navigator.language || "vi").startsWith("vi") ? "vi" : "en");
+  languageSelectEl.value = savedLang;
+  languageSelectEl.onchange = () => {
+    localStorage.setItem("lang_user", languageSelectEl.value);
+  };
+}
+
+const profile2faForm = document.getElementById("profile2fa");
+const profile2faToggle = document.getElementById("profile2faToggle");
+if (profile2faForm && profile2faToggle) {
+  profile2faForm.addEventListener("change", () => {
+    profile2faToggle.checked = profile2faForm.checked;
   });
-  alert("Đã lưu tài khoản");
-};
+  profile2faToggle.addEventListener("change", () => {
+    profile2faForm.checked = profile2faToggle.checked;
+  });
+}
 
-document.getElementById("saveBudget").onclick = async () => {
-  await call("/budget", { method: "POST", headers: headers(), body: JSON.stringify({ monthly_limit: Number(document.getElementById("budget").value), alert_enabled: true }) });
-  await loadDashboard();
-};
+const saveBudgetBtn = document.getElementById("saveBudget");
+if (saveBudgetBtn) {
+  saveBudgetBtn.onclick = async () => {
+    await call("/budget", { method: "POST", headers: headers(), body: JSON.stringify({ monthly_limit: Number(document.getElementById("budget").value), alert_enabled: true }) });
+    await loadDashboard();
+  };
+}
 
-document.getElementById("addReminder").onclick = async () => {
-  await call("/reminders", { method: "POST", headers: headers(), body: JSON.stringify({ title: document.getElementById("reminderTitle").value, due_day: Number(document.getElementById("reminderDay").value), active: true }) });
-  await loadReminders();
-};
+const addReminderBtn = document.getElementById("addReminder");
+if (addReminderBtn) {
+  addReminderBtn.onclick = async () => {
+    await call("/reminders", { method: "POST", headers: headers(), body: JSON.stringify({ title: document.getElementById("reminderTitle").value, due_day: Number(document.getElementById("reminderDay").value), active: true }) });
+    await loadReminders();
+  };
+}
 
 document.getElementById("period").onchange = loadStats;
 document.getElementById("exportExcel").onclick = (e) => { e.preventDefault(); downloadReport("excel", "spendmate_report.xlsx").catch(err => alert(err.message)); };

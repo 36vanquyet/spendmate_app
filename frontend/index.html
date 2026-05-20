@@ -81,7 +81,7 @@
     <main class="main-content">
       <header class="main-top">
         <div class="main-actions">
-          <select id="languageSelect" class="visually-hidden">
+          <select id="topbarLanguageSelect" class="visually-hidden">
             <option value="vi">Tiếng Việt</option>
             <option value="en">English</option>
           </select>
@@ -179,24 +179,192 @@
         <ul id="memberList" class="list"></ul>
       </section>
 
-      <section id="settings" class="tab panel">
-        <h3 id="settingsTitle"><i class="bi bi-sliders"></i> Ngân sách và nhắc nhở</h3>
-        <div class="form-grid">
-          <input id="profileName" placeholder="Họ tên" />
-          <input id="profilePhone" placeholder="Số điện thoại" />
-          <label class="inline-check"><input id="profile2fa" type="checkbox" /> Bật 2FA</label>
-          <button id="saveProfile"><i class="bi bi-person-check"></i> Lưu tài khoản</button>
+      <section id="settings" class="tab settings-page">
+        <div class="settings-top">
+          <div>
+            <div class="settings-breadcrumb">Trang chủ <i class="bi bi-chevron-right"></i> Cài đặt</div>
+            <h1 class="settings-title">Cài đặt</h1>
+          </div>
+          <div class="settings-search">
+            <i class="bi bi-search"></i>
+            <input placeholder="Tìm kiếm cài đặt..." />
+          </div>
         </div>
-        <div class="form-grid">
-          <input id="budget" type="number" placeholder="Giới hạn ngân sách" />
-          <button id="saveBudget"><i class="bi bi-save2"></i> Lưu ngân sách</button>
+
+        <div class="settings-grid">
+          <div class="settings-col">
+            <article class="settings-card profile-card">
+              <h3>Hồ sơ của tôi</h3>
+              <div class="profile-view">
+                <div class="profile-photo">M</div>
+                <div class="profile-meta">
+                  <strong id="profileNameDisplay">Minh Nguyễn</strong>
+                  <span id="profileEmailDisplay">minh.nguyen@gmail.com</span>
+                  <span id="profilePhoneDisplay">0901 234 567</span>
+                  <span class="chip chip-purple"><i class="bi bi-gem"></i> Premium</span>
+                </div>
+              </div>
+              <div class="settings-actions">
+                <button class="ghost" type="button"><i class="bi bi-camera"></i> Đổi ảnh</button>
+                <button id="saveProfile" class="primary" type="button"><i class="bi bi-pencil-square"></i> Chỉnh sửa hồ sơ</button>
+              </div>
+              <div class="settings-form hidden">
+                <input id="profileName" placeholder="Họ tên" />
+                <input id="profilePhone" placeholder="Số điện thoại" />
+                <label class="inline-check"><input id="profile2fa" type="checkbox" /> Bật 2FA</label>
+              </div>
+            </article>
+
+            <article class="settings-card">
+              <h3>Thông báo & Nhắc nhở</h3>
+              <div class="setting-switch-row">
+                <div>
+                  <strong>Thông báo giao dịch</strong>
+                  <span>Thông báo khi có giao dịch mới</span>
+                </div>
+                <label class="switch"><input type="checkbox" checked /><span></span></label>
+              </div>
+              <div class="setting-switch-row">
+                <div>
+                  <strong>Nhắc mục tiêu</strong>
+                  <span>Nhắc nhở tiền đạt mục tiêu</span>
+                </div>
+                <label class="switch"><input type="checkbox" checked /><span></span></label>
+              </div>
+              <div class="setting-switch-row">
+                <div>
+                  <strong>Cảnh báo vượt ngân sách</strong>
+                  <span>Cảnh báo khi chi vượt ngân sách</span>
+                </div>
+                <label class="switch"><input type="checkbox" checked /><span></span></label>
+              </div>
+              <div class="setting-switch-row">
+                <div>
+                  <strong>Nhắc giao dịch định kỳ</strong>
+                  <span>Nhắc nhở các giao dịch định kỳ</span>
+                </div>
+                <label class="switch"><input type="checkbox" /><span></span></label>
+              </div>
+              <div class="setting-switch-row">
+                <div>
+                  <strong>Email báo cáo tuần</strong>
+                  <span>Nhận báo cáo tổng quan hàng tuần</span>
+                </div>
+                <label class="switch"><input type="checkbox" checked /><span></span></label>
+              </div>
+            </article>
+
+            <article class="settings-card integrations-card">
+              <h3>Tài khoản liên kết & Tích hợp</h3>
+              <div class="integration-row">
+                <div class="integration-left"><span class="brand-dot google"><i class="bi bi-google"></i></span><div><strong>Google</strong><span>Đăng nhập bằng Google</span></div></div>
+                <div class="integration-right"><span class="chip chip-green">Đã kết nối</span><button class="mini ghost">Quản lý</button><i class="bi bi-chevron-down"></i></div>
+              </div>
+              <div class="integration-row">
+                <div class="integration-left"><span class="brand-dot apple"><i class="bi bi-apple"></i></span><div><strong>Apple</strong><span>Đăng nhập bằng Apple</span></div></div>
+                <div class="integration-right"><span class="chip chip-orange">Chưa kết nối</span><button class="mini ghost">Kết nối</button><i class="bi bi-chevron-down"></i></div>
+              </div>
+              <div class="integration-row">
+                <div class="integration-left"><span class="brand-dot bank"><i class="bi bi-bank"></i></span><div><strong>Vietcombank</strong><span>Liên kết tài khoản ngân hàng</span></div></div>
+                <div class="integration-right"><span class="chip chip-green">Đã kết nối</span><button class="mini ghost">Quản lý</button><i class="bi bi-chevron-down"></i></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="settings-col">
+            <article class="settings-card security-card">
+              <h3>Bảo mật</h3>
+              <div class="security-row"><div class="security-left"><span class="sec-icon"><i class="bi bi-key"></i></span><div><strong>Đổi mật khẩu</strong><span>Thay đổi mật khẩu đăng nhập</span></div></div><i class="bi bi-chevron-right"></i></div>
+              <div class="security-row toggle-row"><div class="security-left"><span class="sec-icon"><i class="bi bi-shield-lock"></i></span><div><strong>Xác thực 2 bước</strong><span>Tăng cường bảo mật cho tài khoản</span></div></div><label class="switch"><input id="profile2faToggle" type="checkbox" /><span></span></label></div>
+              <div class="security-row"><div class="security-left"><span class="sec-icon"><i class="bi bi-laptop"></i></span><div><strong>Thiết bị đăng nhập</strong><span>Quản lý các thiết bị đã đăng nhập</span></div></div><i class="bi bi-chevron-right"></i></div>
+              <div class="security-row"><div class="security-left"><span class="sec-icon"><i class="bi bi-clock-history"></i></span><div><strong>Phiên hoạt động</strong><span>Xem các phiên đăng nhập hiện tại</span></div></div><i class="bi bi-chevron-right"></i></div>
+            </article>
+
+            <article class="settings-card">
+              <h3>Tùy chọn giao diện & Ngôn ngữ</h3>
+              <div class="field-row"><span><i class="bi bi-globe2"></i> Ngôn ngữ</span><select id="languageSelect"><option value="vi">Tiếng Việt</option><option value="en">English</option></select></div>
+              <div class="field-row"><span><i class="bi bi-clock"></i> Múi giờ</span><select><option>GMT+7</option><option>GMT+8</option></select></div>
+              <div class="field-row"><span><i class="bi bi-currency-exchange"></i> Đơn vị tiền tệ</span><select><option>VND</option><option>USD</option></select></div>
+              <div class="field-row">
+                <span><i class="bi bi-brightness-high"></i> Giao diện</span>
+                <div class="segmented">
+                  <button class="segment active" type="button">Sáng</button>
+                  <button class="segment" type="button">Tối</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="settings-card sync-card">
+              <h3>Đồng bộ & Sao lưu dữ liệu</h3>
+              <div class="sync-row"><div><strong>Đồng bộ dữ liệu</strong><span>Đồng bộ dữ liệu trên tất cả thiết bị</span></div><span class="chip chip-green">Đã bật</span><i class="bi bi-chevron-right"></i></div>
+              <div class="sync-row"><div><strong>Sao lưu tự động</strong><span>Tự động sao lưu dữ liệu định kỳ</span></div><span class="chip chip-green">Đã bật</span><i class="bi bi-chevron-right"></i></div>
+              <div class="sync-row"><div><strong>Lần sao lưu gần nhất</strong><span>15/05/2024 10:21</span></div></div>
+              <div class="storage-row">
+                <div class="storage-head"><span>Dung lượng lưu trữ</span><span>1.24 GB / 5 GB</span></div>
+                <div class="progress"><i style="width:24%"></i></div>
+                <div class="storage-pct">24%</div>
+              </div>
+              <div class="settings-actions">
+                <button class="primary" type="button"><i class="bi bi-cloud-arrow-up"></i> Sao lưu ngay</button>
+                <button class="ghost" type="button"><i class="bi bi-arrow-counterclockwise"></i> Khôi phục dữ liệu</button>
+              </div>
+            </article>
+          </div>
+
+          <div class="settings-col">
+            <article class="settings-card account-card">
+              <h3>Tình trạng tài khoản</h3>
+              <div class="status-wrap">
+                <div class="status-ring"><span>88%</span></div>
+                <div class="status-meta">
+                  <strong>Hồ sơ hoàn thiện</strong>
+                  <span>Tài khoản của bạn đã hoàn thiện 88%</span>
+                </div>
+              </div>
+              <div class="status-bar"><i style="width:88%"></i></div>
+              <div class="info-list">
+                <div><span>Gói hiện tại</span><b>Premium</b></div>
+                <div><span>Ngày tạo tài khoản</span><b>12/03/2024</b></div>
+                <div><span>Thành viên gia đình</span><b>3 thành viên</b></div>
+              </div>
+            </article>
+
+            <article class="settings-card security-summary-card">
+              <h3>Bảo mật tổng quan</h3>
+              <div class="summary-state good"><i class="bi bi-shield-check"></i><div><strong>Tốt</strong><span>Tài khoản được bảo vệ tốt</span></div></div>
+              <div class="summary-list">
+                <div><span>Xác thực 2 bước</span><b class="ok">Đã bật <i class="bi bi-check-circle"></i></b></div>
+                <div><span>Mật khẩu cuối cùng thay đổi</span><b>15/04/2024</b></div>
+                <div><span>Thiết bị hoạt động</span><b>3 thiết bị</b></div>
+              </div>
+            </article>
+
+            <article class="settings-card quick-toggles-card">
+              <h3>Thiết lập nhanh</h3>
+              <div class="setting-switch-row compact"><span><i class="bi bi-bell"></i> Thông báo giao dịch</span><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+              <div class="setting-switch-row compact"><span><i class="bi bi-bullseye"></i> Nhắc mục tiêu</span><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+              <div class="setting-switch-row compact"><span><i class="bi bi-shield-exclamation"></i> Cảnh báo ngân sách</span><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+              <div class="setting-switch-row compact"><span><i class="bi bi-envelope"></i> Email báo cáo tuần</span><label class="switch"><input type="checkbox" /><span></span></label></div>
+            </article>
+
+            <article class="settings-card tips-card">
+              <h3>Mẹo hữu ích</h3>
+              <ul class="tips-list">
+                <li><i class="bi bi-cloud-arrow-up"></i> Sao lưu dữ liệu thường xuyên để bảo vệ thông tin.</li>
+                <li><i class="bi bi-shield-check"></i> Bật xác thực 2 bước để tăng cường bảo mật.</li>
+                <li><i class="bi bi-globe2"></i> Chọn ngôn ngữ và múi giờ phù hợp để trải nghiệm tốt hơn.</li>
+                <li><i class="bi bi-bell"></i> Thiết lập nhắc nhở để không bỏ lỡ mục tiêu tài chính.</li>
+              </ul>
+            </article>
+
+            <article class="settings-card danger-card">
+              <h3 class="danger-title">Vùng nguy hiểm</h3>
+              <div class="danger-row"><div><strong>Đăng xuất khỏi tất cả thiết bị</strong><span>Đăng xuất khỏi tất cả phiên đăng nhập trên các thiết bị khác.</span></div><button class="danger-btn" type="button">Đăng xuất</button></div>
+              <div class="danger-row"><div><strong>Xóa tài khoản</strong><span>Xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn.</span></div><button class="danger-btn outline" type="button">Xóa tài khoản</button></div>
+              <div class="danger-note"><i class="bi bi-exclamation-triangle"></i> Lưu ý: Hành động này không thể hoàn tác. Vui lòng sao lưu dữ liệu quan trọng trước khi thực hiện.</div>
+            </article>
+          </div>
         </div>
-        <div class="form-grid">
-          <input id="reminderTitle" placeholder="Tên nhắc nhở" />
-          <input id="reminderDay" type="number" min="1" max="31" placeholder="Ngày" />
-          <button id="addReminder"><i class="bi bi-bell"></i> Thêm nhắc nhở</button>
-        </div>
-        <ul id="reminderList" class="list"></ul>
       </section>
     </main>
   </div>
