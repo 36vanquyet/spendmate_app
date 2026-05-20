@@ -102,8 +102,11 @@ function drawCharts(summary, txs) {
     else incomes[m] += t.amount;
   });
 
-  const pieLabels = Object.keys(summary.by_category || {});
-  const pieValues = Object.values(summary.by_category || {});
+  const pieEntries = Object.entries(summary.by_category || {})
+    .sort((a, b) => b[1] - a[1]);
+  const pieLabels = pieEntries.map(([label]) => label);
+  const pieValues = pieEntries.map(([, value]) => value);
+  const pieTotal = pieValues.reduce((sum, v) => sum + v, 0) || 1;
 
   if (charts.bar) charts.bar.destroy();
   if (charts.line) charts.line.destroy();
@@ -133,8 +136,47 @@ function drawCharts(summary, txs) {
       labels: pieLabels.length ? pieLabels : ["Chưa có"],
       datasets: [{ data: pieValues.length ? pieValues : [1], backgroundColor: ["#2563eb", "#35a66f", "#f5b014", "#9b5de5", "#a8b4c8"], borderWidth: 3 }]
     },
-    options: { maintainAspectRatio: false, cutout: "58%", plugins: { legend: { position: "right", labels: { boxWidth: 10, usePointStyle: true } } } }
+    options: { maintainAspectRatio: false, cutout: "62%", plugins: { legend: { display: false } } },
+    plugins: [{
+      id: "sliceLabels",
+      afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        const meta = chart.getDatasetMeta(0);
+        ctx.save();
+        ctx.fillStyle = "#fff";
+        ctx.font = "700 12px Manrope, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        meta.data.forEach((arc, index) => {
+          const value = pieValues[index] || 0;
+          const pct = Math.round((value / pieTotal) * 100);
+          if (!value || pct < 8) return;
+          const angle = (arc.startAngle + arc.endAngle) / 2;
+          const radius = (arc.innerRadius + arc.outerRadius) / 2;
+          const x = arc.x + Math.cos(angle) * radius;
+          const y = arc.y + Math.sin(angle) * radius;
+          ctx.fillText(`${pct}%`, x, y);
+        });
+        ctx.restore();
+      }
+    }]
   });
+
+  const colors = ["#2563eb", "#35a66f", "#f5b014", "#9b5de5", "#a8b4c8"];
+  document.getElementById("pieLegend").innerHTML = (pieLabels.length ? pieLabels : ["Chưa có"]).map((label, index) => {
+    const value = pieValues[index] || 0;
+    const pct = Math.round((value / pieTotal) * 100);
+    return `
+      <div class="pie-item">
+        <span class="pie-swatch" style="background:${colors[index % colors.length]}"></span>
+        <span class="pie-label">${label}</span>
+        <span class="pie-stats">
+          <span class="pie-value">${pct}%</span>
+          <span class="pie-amount">${vnd(value)}</span>
+        </span>
+      </div>
+    `;
+  }).join("");
 }
 
 function mountBudgetPanel(summary, budget) {
@@ -142,15 +184,20 @@ function mountBudgetPanel(summary, budget) {
   const limit = budget.monthly_limit || 1;
   const tones = ["green", "blue", "purple", "orange"];
   const icons = ["bi-egg-fried", "bi-car-front", "bi-bag", "bi-receipt"];
+  const barColors = ["#16a34a", "#2563eb", "#9333ea", "#f97316"];
+  const softColors = ["#dcfce7", "#dbeafe", "#f3d8ff", "#ffedd5"];
   document.getElementById("budgetPanel").innerHTML = categories.map(([name, val], index) => {
     const pct = Math.min(100, Math.round((val / limit) * 100));
     return `
-      <div class="budget-row">
+      <div class="budget-row" style="--bar-color:${barColors[index % barColors.length]}; --bar-soft:${softColors[index % softColors.length]}">
         <div class="budget-icon ${tones[index % tones.length]}"><i class="bi ${icons[index % icons.length]}"></i></div>
-        <div>
-          <div class="budget-head"><b>${name}</b><span>${vnd(val)} / ${vnd(limit)}</span><b>${pct}%</b></div>
+        <div class="budget-main">
+          <div class="budget-head"><b>${name}</b><span>${vnd(val)} / ${vnd(limit)}</span></div>
+          <div class="budget-line">
+            <div class="progress"><i style="width:${pct}%"></i></div>
+            <b class="budget-pct">${pct}%</b>
+          </div>
         </div>
-        <div class="progress"><i style="width:${pct}%"></i></div>
       </div>
     `;
   }).join("") || "<p>Chưa có dữ liệu ngân sách theo danh mục.</p>";

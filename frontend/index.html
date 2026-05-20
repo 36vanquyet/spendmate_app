@@ -99,7 +99,13 @@
             <div class="chart-triple">
               <article class="panel"><h3 id="barTitle">Biểu đồ thu - chi theo tháng</h3><canvas id="barChart"></canvas></article>
               <article class="panel"><h3 id="lineTitle">Xu hướng thu - chi</h3><canvas id="lineChart"></canvas></article>
-              <article class="panel"><h3 id="pieTitle">Phân bổ chi tiêu theo danh mục</h3><canvas id="pieChart"></canvas></article>
+              <article class="panel pie-panel">
+                <h3 id="pieTitle">Phân bổ chi tiêu theo danh mục</h3>
+                <div class="pie-wrap">
+                  <div class="pie-canvas"><canvas id="pieChart"></canvas></div>
+                  <div id="pieLegend" class="pie-legend"></div>
+                </div>
+              </article>
             </div>
             <article class="panel tx-panel">
               <div class="panel-head">
