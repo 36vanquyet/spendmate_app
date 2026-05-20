@@ -138,29 +138,353 @@
         </div>
       </section>
 
-      <section id="transactions" class="tab panel">
-        <h3 id="addTxTitle"><i class="bi bi-plus-circle"></i> Thêm giao dịch</h3>
-        <div class="form-grid">
-          <select id="txKind"><option value="expense">Chi</option><option value="income">Thu</option></select>
-          <input id="txCategory" placeholder="Danh mục" />
-          <input id="txAmount" type="number" placeholder="Số tiền" />
-          <input id="txDate" type="date" />
-          <select id="txGroup"></select>
-          <input id="txNote" placeholder="Ghi chú" />
-          <button id="addTx"><i class="bi bi-check2-circle"></i> Lưu giao dịch</button>
+      <section id="transactions" class="tab transactions-page">
+        <div id="transactionsListView" class="tx-view active">
+          <div class="page-head-row">
+            <div>
+              <div class="page-breadcrumb">Giao dịch</div>
+              <h1 class="page-title">Giao dịch</h1>
+            </div>
+            <div class="page-head-search">
+              <i class="bi bi-search"></i>
+              <input id="txSearchInput" placeholder="Tìm kiếm nhanh..." />
+            </div>
+          </div>
+
+          <div class="tx-stats-grid">
+            <article class="kpi tx-kpi">
+              <div class="kpi-icon blue"><i class="bi bi-receipt"></i></div>
+              <div><h4>Tổng giao dịch</h4><p id="txTotalCount">0 giao dịch</p><span><b>↑ 18,2%</b> so với tháng trước</span></div>
+            </article>
+            <article class="kpi tx-kpi">
+              <div class="kpi-icon green"><i class="bi bi-arrow-down-circle"></i></div>
+              <div><h4>Tổng thu</h4><p id="txIncomeTotal">0 đ</p><span><b>↑ 12,4%</b> so với tháng trước</span></div>
+            </article>
+            <article class="kpi tx-kpi expense">
+              <div class="kpi-icon red"><i class="bi bi-arrow-up-circle"></i></div>
+              <div><h4>Tổng chi</h4><p id="txExpenseTotal">0 đ</p><span><b>↑ 6,2%</b> so với tháng trước</span></div>
+            </article>
+            <article class="kpi tx-kpi">
+              <div class="kpi-icon orange"><i class="bi bi-clock"></i></div>
+              <div><h4>Chờ xử lý</h4><p id="txPendingCount">0 giao dịch</p><span><b>↓ 1</b> so với tháng trước</span></div>
+            </article>
+          </div>
+
+          <div class="tx-toolbar">
+            <div class="tx-toolbar-filters">
+              <input id="txSearch" placeholder="Tìm kiếm giao dịch" />
+              <select id="txKindFilter">
+                <option value="">Loại: Tất cả</option>
+                <option value="expense">Loại: Chi</option>
+                <option value="income">Loại: Thu</option>
+              </select>
+              <select id="txCategoryFilter"><option value="">Danh mục: Tất cả</option></select>
+              <select id="txAccountFilter"><option value="">Tài khoản: Tất cả</option></select>
+              <input id="txRangeFilter" placeholder="01/05/2024 - 31/05/2024" />
+            </div>
+            <button id="openTxCreateBtn" class="tx-create-btn" type="button"><i class="bi bi-plus-lg"></i> Thêm giao dịch</button>
+          </div>
+
+          <div class="tx-layout">
+            <article class="panel tx-table-panel">
+              <div class="panel-head">
+                <h3>Danh sách giao dịch</h3>
+                <a href="#" id="openTxCreateLink">+ Thêm giao dịch</a>
+              </div>
+              <table class="tx-table tx-page-table">
+                <thead>
+                  <tr>
+                    <th>Ngày</th><th>Mô tả</th><th>Danh mục</th><th>Loại</th><th>Tài khoản</th><th>Số tiền</th><th>Trạng thái</th><th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="txTableBody"></tbody>
+              </table>
+              <div class="tx-pagination">
+                <span id="txPagerInfo">Hiển thị 1–8 / 124 giao dịch</span>
+                <div class="pager">
+                  <button type="button">‹</button><button class="active" type="button">1</button><button type="button">2</button><button type="button">3</button><span>…</span><button type="button">16</button><button type="button">›</button>
+                </div>
+                <select><option>8 / trang</option><option>16 / trang</option></select>
+              </div>
+            </article>
+
+            <aside class="tx-side">
+              <article class="panel recurring-panel">
+                <div class="panel-head">
+                  <h3>Giao dịch định kỳ</h3>
+                  <a href="#">Xem tất cả</a>
+                </div>
+                <div id="txRecurringList" class="tx-mini-list"></div>
+              </article>
+              <article class="panel tx-chart-panel">
+                <div class="panel-head">
+                  <h3>Chi tiêu theo danh mục</h3>
+                  <a href="#">Xem báo cáo</a>
+                </div>
+                <div class="pie-wrap tx-pie-wrap">
+                  <div class="pie-canvas"><canvas id="txPieChart"></canvas></div>
+                  <div id="txPieLegend" class="pie-legend"></div>
+                </div>
+              </article>
+            </aside>
+          </div>
         </div>
-        <ul id="txList" class="list"></ul>
+
+        <div id="transactionsCreateView" class="tx-view hidden">
+          <div class="page-head-row">
+            <div>
+              <div class="page-breadcrumb">Giao dịch / Thêm giao dịch</div>
+              <h1 class="page-title">Thêm giao dịch</h1>
+            </div>
+            <div class="page-head-search">
+              <i class="bi bi-search"></i>
+              <input placeholder="Tìm kiếm giao dịch..." />
+            </div>
+          </div>
+
+          <div class="tx-create-layout">
+            <article class="panel tx-form-panel">
+              <div class="tx-kind-tabs">
+                <button class="tx-kind-tab active" data-kind="expense" type="button"><i class="bi bi-arrow-down-left"></i> Chi tiêu</button>
+                <button class="tx-kind-tab" data-kind="income" type="button"><i class="bi bi-arrow-up-right"></i> Thu nhập</button>
+                <button class="tx-kind-tab disabled" type="button"><i class="bi bi-arrow-left-right"></i> Chuyển khoản</button>
+              </div>
+              <select id="txKind" class="hidden">
+                <option value="expense" selected>expense</option>
+                <option value="income">income</option>
+              </select>
+
+              <div class="tx-form-grid">
+                <div>
+                  <label>Số tiền <span>*</span></label>
+                  <div class="field-wrap compact"><input id="txAmount" type="number" placeholder="45.000" /><span class="currency">đ</span></div>
+                </div>
+                <div>
+                  <label>Danh mục <span>*</span></label>
+                  <select id="txCategory"><option>Ăn uống</option><option>Đi lại</option><option>Mua sắm</option><option>Hóa đơn</option></select>
+                </div>
+                <div>
+                  <label>Ngày giao dịch <span>*</span></label>
+                  <div class="field-wrap compact"><i class="bi bi-calendar3"></i><input id="txDate" type="date" /></div>
+                </div>
+                <div>
+                  <label>Thời gian</label>
+                  <div class="field-wrap compact"><i class="bi bi-clock"></i><input value="09:30" type="time" /></div>
+                </div>
+                <div>
+                  <label>Tài khoản <span>*</span></label>
+                  <select id="txAccount">
+                    <option value="Ví MoMo">Ví MoMo</option>
+                    <option value="Vietcombank">Vietcombank</option>
+                    <option value="ZaloPay">ZaloPay</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Nhóm / Gia đình (tùy chọn)</label>
+                  <select id="txGroup"></select>
+                </div>
+                <div class="tx-span-2">
+                  <label>Mô tả <span>*</span></label>
+                  <textarea id="txNote" rows="4" placeholder="Cà phê Highlands"></textarea>
+                  <div class="char-count">18/200</div>
+                </div>
+                <div>
+                  <label>Đính kèm hóa đơn (tùy chọn)</label>
+                  <div class="upload-box">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <strong>Kéo thả file hoặc click để tải lên</strong>
+                    <span>Hỗ trợ: JPG, PNG, PDF (tối đa 5MB)</span>
+                  </div>
+                </div>
+                <div>
+                  <label>Gắn thẻ (tùy chọn)</label>
+                  <div class="tag-box">
+                    <div class="tag-list">
+                      <span class="tag">công việc <i class="bi bi-x"></i></span>
+                      <span class="tag">cá nhân <i class="bi bi-x"></i></span>
+                      <span class="tag">du lịch <i class="bi bi-x"></i></span>
+                    </div>
+                    <div class="field-wrap compact"><input placeholder="Thêm thẻ và nhấn Enter" /><i class="bi bi-chevron-down"></i></div>
+                  </div>
+                </div>
+                <div>
+                  <label>Lặp lại giao dịch</label>
+                  <select><option>Không lặp lại</option><option>Hàng ngày</option><option>Hàng tuần</option><option>Hàng tháng</option></select>
+                </div>
+                <div>
+                  <label>Thông báo / nhắc nhở (tùy chọn)</label>
+                  <div class="setting-switch-row compact">
+                    <span><i class="bi bi-bell"></i> Đặt nhắc nhở cho giao dịch này</span>
+                    <label class="switch"><input type="checkbox" /><span></span></label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tx-form-actions">
+                <button id="backToTxListBtn" class="ghost" type="button">Hủy</button>
+                <button id="addTx" class="primary" type="button">Lưu giao dịch</button>
+              </div>
+            </article>
+
+            <aside class="tx-create-side">
+              <article class="panel tx-summary-panel">
+                <h3>Tóm tắt giao dịch</h3>
+                <div class="summary-list tx-summary-list">
+                  <div><span>Loại</span><b id="txSummaryKind">Chi tiêu</b></div>
+                  <div><span>Danh mục</span><b id="txSummaryCategory">Ăn uống</b></div>
+                  <div><span>Tài khoản</span><b id="txSummaryAccount">Ví MoMo</b></div>
+                  <div><span>Ngày</span><b id="txSummaryDate">19/05/2024</b></div>
+                </div>
+                <hr />
+                <div class="tx-summary-amount">
+                  <span>Số tiền</span>
+                  <strong id="txSummaryAmount">-45.000 đ</strong>
+                </div>
+              </article>
+              <article class="panel budget-related-panel">
+                <div class="panel-head">
+                  <h3>Ngân sách liên quan</h3>
+                </div>
+                <div id="txBudgetRelated"></div>
+              </article>
+              <article class="panel similar-panel">
+                <div class="panel-head">
+                  <h3>Giao dịch gần giống</h3>
+                  <a href="#">Xem tất cả</a>
+                </div>
+                <div id="txSimilarList" class="tx-mini-list"></div>
+              </article>
+              <article class="panel tips-panel">
+                <h3>Mẹo hữu ích</h3>
+                <ul class="tips-list">
+                  <li><i class="bi bi-receipt"></i> Bạn có thể tải hóa đơn để dễ đối soát.</li>
+                  <li><i class="bi bi-tag"></i> Thêm thẻ giúp bạn phân loại chi tiêu tốt hơn.</li>
+                  <li><i class="bi bi-bell"></i> Bật nhắc nhở để không quên các khoản chi.</li>
+                </ul>
+              </article>
+            </aside>
+          </div>
+          <ul id="txList" class="hidden"></ul>
+        </div>
       </section>
 
-      <section id="stats" class="tab panel">
-        <h3 id="statsDetailTitle"><i class="bi bi-clipboard-data"></i> Thống kê chi tiết</h3>
-        <select id="period">
-          <option value="day">Ngày</option>
-          <option value="week">Tuần</option>
-          <option value="month" selected>Tháng</option>
-          <option value="year">Năm</option>
-        </select>
-        <pre id="statsContent"></pre>
+      <section id="stats" class="tab stats-page">
+        <div class="page-head-row">
+          <div>
+            <div class="page-breadcrumb">Thống kê</div>
+            <h1 class="page-title">Thống kê</h1>
+          </div>
+          <div class="stats-head-tools">
+            <div class="page-head-search stats-head-search">
+              <i class="bi bi-search"></i>
+              <input id="statsSearchInput" placeholder="Tìm kiếm thống kê..." />
+            </div>
+            <select id="statsPeriodSelect" class="stats-select">
+              <option value="day">Ngày</option>
+              <option value="week">Tuần</option>
+              <option value="month" selected>Tháng</option>
+              <option value="year">Năm</option>
+            </select>
+            <select id="statsCategorySelect" class="stats-select">
+              <option value="">Danh mục: Tất cả</option>
+            </select>
+            <select id="statsAccountSelect" class="stats-select">
+              <option value="">Tài khoản: Tất cả</option>
+            </select>
+            <button id="statsExportBtn" class="tx-create-btn stats-export-btn" type="button"><i class="bi bi-download"></i> Xuất báo cáo</button>
+          </div>
+        </div>
+
+        <div class="stats-segments" role="tablist" aria-label="Chọn kỳ thống kê">
+          <button class="stats-segment" data-period="day" type="button">Ngày</button>
+          <button class="stats-segment" data-period="week" type="button">Tuần</button>
+          <button class="stats-segment active" data-period="month" type="button">Tháng</button>
+          <button class="stats-segment" data-period="year" type="button">Năm</button>
+        </div>
+
+        <div class="stats-kpi-grid">
+          <article class="kpi stats-kpi expense">
+            <div class="kpi-icon red"><i class="bi bi-wallet2"></i></div>
+            <div><h4 id="statsKpiExpenseTitle">Tổng chi tháng này</h4><p id="statsKpiExpense">0 đ</p><span><b id="statsKpiExpenseTrend">↑ 0%</b> so với kỳ trước</span></div>
+          </article>
+          <article class="kpi stats-kpi">
+            <div class="kpi-icon green"><i class="bi bi-arrow-down-circle"></i></div>
+            <div><h4 id="statsKpiIncomeTitle">Tổng thu tháng này</h4><p id="statsKpiIncome">0 đ</p><span><b id="statsKpiIncomeTrend">↑ 0%</b> so với kỳ trước</span></div>
+          </article>
+          <article class="kpi stats-kpi">
+            <div class="kpi-icon green"><i class="bi bi-piggy-bank"></i></div>
+            <div><h4 id="statsKpiSavingsTitle">Tiết kiệm</h4><p id="statsKpiSavings">0 đ</p><span><b id="statsKpiSavingsTrend">↑ 0%</b> so với kỳ trước</span></div>
+          </article>
+          <article class="kpi stats-kpi">
+            <div class="kpi-icon blue"><i class="bi bi-graph-up-arrow"></i></div>
+            <div><h4 id="statsKpiCompareTitle">So với kỳ trước</h4><p id="statsKpiCompare">0%</p><span><b id="statsKpiCompareNote">Chưa đủ dữ liệu</b></span></div>
+          </article>
+        </div>
+
+        <div class="stats-chart-grid">
+          <article class="panel stats-chart-panel">
+            <div class="panel-head"><h3>Thu - Chi theo thời gian</h3></div>
+            <canvas id="statsBarChart"></canvas>
+          </article>
+          <article class="panel stats-chart-panel">
+            <div class="panel-head"><h3>Xu hướng chi tiêu</h3></div>
+            <canvas id="statsLineChart"></canvas>
+          </article>
+        </div>
+
+        <div class="stats-mid-grid">
+          <article class="panel stats-pie-panel">
+            <div class="panel-head"><h3>Chi tiêu theo danh mục</h3></div>
+            <div class="pie-wrap stats-pie-wrap">
+              <div class="pie-canvas stats-pie-canvas"><canvas id="statsPieChart"></canvas></div>
+              <div id="statsPieLegend" class="pie-legend stats-pie-legend"></div>
+            </div>
+          </article>
+
+          <article class="panel stats-compare-panel">
+            <div class="panel-head">
+              <h3>So sánh kỳ này / kỳ trước</h3>
+              <a href="#">Xem tất cả</a>
+            </div>
+            <div id="statsCompareList" class="stats-compare-list"></div>
+          </article>
+
+          <article class="panel stats-budget-panel">
+            <div class="panel-head">
+              <h3>Tình trạng ngân sách</h3>
+              <a href="#">Xem tất cả</a>
+            </div>
+            <div id="statsBudgetPanel"></div>
+          </article>
+        </div>
+
+        <div class="stats-bottom-grid">
+          <article class="panel stats-analysis-panel">
+            <div class="panel-head">
+              <h3>Phân tích chi tiết</h3>
+            </div>
+            <table class="stats-analysis-table">
+              <thead>
+                <tr>
+                  <th>Danh mục</th>
+                  <th>Số giao dịch</th>
+                  <th>Tổng chi</th>
+                  <th>Trung bình / giao dịch</th>
+                  <th>So với kỳ trước</th>
+                  <th>Xu hướng</th>
+                </tr>
+              </thead>
+              <tbody id="statsAnalysisBody"></tbody>
+            </table>
+          </article>
+
+          <article class="panel stats-insight-panel">
+            <div class="panel-head">
+              <h3>Nhận xét nhanh (AI)</h3>
+            </div>
+            <div id="statsInsightList" class="stats-insight-list"></div>
+          </article>
+        </div>
       </section>
 
       <section id="groups" class="tab panel">
